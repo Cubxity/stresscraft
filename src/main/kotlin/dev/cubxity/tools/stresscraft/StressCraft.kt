@@ -9,12 +9,9 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
 class StressCraft(
-    private val host: String,
-    private val port: Int,
-    private val count: Int,
-    private val delay: Int,
-    private val buffer: Int,
-    private val prefix: String
+    val host: String,
+    val port: Int,
+    val options: StressCraftOptions
 ) {
     private val executor = Executors.newScheduledThreadPool(2)
     private val terminal = Terminal()
@@ -22,6 +19,7 @@ class StressCraft(
 
     val sessions = AtomicInteger()
     val activeSessions = AtomicInteger()
+    val chunksLoaded = AtomicInteger()
 
     fun start() {
         Runtime.getRuntime().addShutdownHook(Thread {
@@ -31,10 +29,10 @@ class StressCraft(
         executor.scheduleAtFixedRate({
             val sessions = sessions.get()
             val activeSessions = activeSessions.get()
-            if (sessions < count && sessions - activeSessions < buffer) {
+            if (sessions < options.count && sessions - activeSessions < options.buffer) {
                 createSession()
             }
-        }, 0, delay.toLong(), TimeUnit.MILLISECONDS)
+        }, 0, options.delay.toLong(), TimeUnit.MILLISECONDS)
 
         // Render at 10 FPS
         // Some terminals may be too slow to handle high frequency updates
@@ -44,14 +42,16 @@ class StressCraft(
     }
 
     private fun createSession() {
-        val name = prefix + "${id++}".padStart(4, '0')
-        Session(this).connect(host, port, name)
+        val name = options.prefix + "${id++}".padStart(4, '0')
+        Session(this).connect(name)
     }
 
     private fun renderProgress() {
         terminal.renderHeader(host, port)
-        terminal.renderBar(sessions.get(), count, "Connections")
-        terminal.renderBar(activeSessions.get(), count, "Players")
+        terminal.renderInfo("\uD83D\uDCE6 Chunks", chunksLoaded.get())
+        terminal.newLine()
+        terminal.renderBar(sessions.get(), options.count, "Connections")
+        terminal.renderBar(activeSessions.get(), options.count, "Players")
         terminal.renderBar(100, 100, "Michael Appreciation")
         terminal.reset()
     }
@@ -75,8 +75,11 @@ fun main(args: Array<String>) {
         .default(20)
     val prefix by parser.option(ArgType.String, "prefix", "p", description = "player name prefix")
         .default("Player")
+    val simulate by parser.option(ArgType.Boolean, "simulate", "s", description = "use player simulation (not implemented)")
+        .default(true)
 
     parser.parse(args)
 
-    StressCraft(host, port, count, delay, buffer, prefix).start()
+    val options = StressCraftOptions(count, delay, buffer, prefix, simulate)
+    StressCraft(host, port, options).start()
 }
