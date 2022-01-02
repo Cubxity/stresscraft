@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/github/license/Cubxity/stresscraft?style=flat-square)](COPYING)
 [![Discord](https://img.shields.io/badge/join-discord-blue?style=flat-square)](https://discord.gg/vxecYcWXyf)
 
-State-of-art Minecraft stressing software written in Kotlin.
+State-of-art Minecraft stress testing software written in Kotlin.
 
 ## Disclaimer
 
