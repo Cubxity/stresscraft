@@ -12,7 +12,8 @@ repositories {
 }
 
 dependencies {
-    implementation(kotlin("stdlib"))
+    implementation(kotlin("stdlib-jdk8"))
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.0")
     implementation("org.jetbrains.kotlinx:kotlinx-cli-jvm:0.3.4")
     implementation("com.github.Steveice10:MCProtocolLib:1.18-2")
     implementation("org.fusesource.jansi:jansi:2.4.0")
@@ -21,7 +22,7 @@ dependencies {
 tasks {
     jar {
         manifest {
-            attributes("Main-Class" to "dev.cubxity.tools.stresscraft.StressCraftKt")
+            attributes("Main-Class" to "dev.cubxity.tools.stresscraft.cli.StressCraftCLIKt")
         }
     }
     shadowJar {

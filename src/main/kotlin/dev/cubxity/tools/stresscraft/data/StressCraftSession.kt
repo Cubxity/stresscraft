@@ -1,25 +1,36 @@
-package dev.cubxity.tools.stresscraft
+package dev.cubxity.tools.stresscraft.data
 
 import com.github.steveice10.mc.protocol.MinecraftProtocol
 import com.github.steveice10.mc.protocol.data.game.ClientCommand
 import com.github.steveice10.mc.protocol.packet.ingame.clientbound.ClientboundLoginPacket
 import com.github.steveice10.mc.protocol.packet.ingame.clientbound.ClientboundRespawnPacket
+import com.github.steveice10.mc.protocol.packet.ingame.clientbound.entity.player.ClientboundPlayerPositionPacket
 import com.github.steveice10.mc.protocol.packet.ingame.clientbound.entity.player.ClientboundSetHealthPacket
 import com.github.steveice10.mc.protocol.packet.ingame.clientbound.level.ClientboundForgetLevelChunkPacket
 import com.github.steveice10.mc.protocol.packet.ingame.clientbound.level.ClientboundLevelChunkWithLightPacket
+import com.github.steveice10.mc.protocol.packet.ingame.clientbound.level.ClientboundSetTimePacket
 import com.github.steveice10.mc.protocol.packet.ingame.serverbound.ServerboundClientCommandPacket
+import com.github.steveice10.mc.protocol.packet.ingame.serverbound.level.ServerboundAcceptTeleportationPacket
 import com.github.steveice10.packetlib.Session
 import com.github.steveice10.packetlib.event.session.DisconnectedEvent
 import com.github.steveice10.packetlib.event.session.SessionAdapter
 import com.github.steveice10.packetlib.packet.Packet
 import com.github.steveice10.packetlib.tcp.TcpClientSession
+import dev.cubxity.tools.stresscraft.StressCraft
+import dev.cubxity.tools.stresscraft.util.ServerTimer
 
-class Session(private val app: StressCraft) : SessionAdapter() {
+class StressCraftSession(private val app: StressCraft) : SessionAdapter() {
     private var wasAlive = false
     private var wasActive = false
     private var previousChunkCount = 0
 
     private val chunks = HashSet<Long>()
+    private var _session: Session? = null
+
+    val timer = ServerTimer()
+
+    val session: Session
+        get() = _session ?: error("session has not initialized")
 
     fun connect(name: String) {
         val protocol = MinecraftProtocol(name)
@@ -27,9 +38,10 @@ class Session(private val app: StressCraft) : SessionAdapter() {
 
         session.addListener(this)
 
-        app.sessions.incrementAndGet()
+        app.sessionCount.incrementAndGet()
         wasAlive = true
         try {
+            _session = session
             session.connect()
         } catch (error: Throwable) {
             handleDisconnect()
@@ -54,6 +66,9 @@ class Session(private val app: StressCraft) : SessionAdapter() {
                     session.send(ServerboundClientCommandPacket(ClientCommand.RESPAWN))
                 }
             }
+            is ClientboundPlayerPositionPacket -> {
+                session.send(ServerboundAcceptTeleportationPacket(packet.teleportId))
+            }
             is ClientboundLevelChunkWithLightPacket -> {
                 chunks.add(computeKey(packet.x, packet.z))
 
@@ -68,6 +83,9 @@ class Session(private val app: StressCraft) : SessionAdapter() {
                 app.chunksLoaded.addAndGet(size - previousChunkCount)
                 previousChunkCount = size
             }
+            is ClientboundSetTimePacket -> {
+                timer.onWorldTimeUpdate(packet.time)
+            }
         }
     }
 
@@ -79,8 +97,9 @@ class Session(private val app: StressCraft) : SessionAdapter() {
         x.toLong().shl(32) or z.toLong()
 
     private fun handleDisconnect() {
+        app.removeSession(this)
         if (wasAlive) {
-            app.sessions.decrementAndGet()
+            app.sessionCount.decrementAndGet()
             wasAlive = false
         }
         if (wasActive) {
@@ -90,5 +109,6 @@ class Session(private val app: StressCraft) : SessionAdapter() {
         chunks.clear()
         app.chunksLoaded.addAndGet(-previousChunkCount)
         previousChunkCount = 0
+        _session = null
     }
 }

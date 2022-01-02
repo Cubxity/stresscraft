@@ -1,4 +1,4 @@
-package dev.cubxity.tools.stresscraft
+package dev.cubxity.tools.stresscraft.util
 
 import org.fusesource.jansi.Ansi
 import org.fusesource.jansi.AnsiConsole
@@ -12,7 +12,7 @@ class Terminal : Closeable {
 
     private val format = NumberFormat.getInstance()
 
-    init {
+    fun init() {
         System.setProperty(AnsiConsole.JANSI_MODE, AnsiConsole.JANSI_MODE_FORCE)
         AnsiConsole.systemInstall()
         println("\u001b[?25l") // Hide cursor
@@ -30,7 +30,7 @@ class Terminal : Closeable {
         newLine()
     }
 
-    fun renderInfo(label: String, value: Int) =
+    fun renderGauge(label: String, value: Int) =
         renderInfo(label, format.format(value))
 
     fun renderInfo(label: String, value: String) {
@@ -45,7 +45,19 @@ class Terminal : Closeable {
         newLine()
     }
 
-    fun renderBar(value: Int, total: Int, label: String) {
+    fun renderProgress(value: Double, total: Double, label: String) {
+        val fill = (min(value, total) / total * width).toInt()
+        val ansi = Ansi.ansi()
+            .eraseLine()
+            .fg(Ansi.Color.CYAN)
+            .a("\u2588".repeat(fill) + "\u2591".repeat(width - fill))
+            .reset()
+            .a(" - ${format.format(value)}/${format.format(total)} $label")
+        print(ansi)
+        newLine()
+    }
+
+    fun renderProgress(value: Int, total: Int, label: String) {
         val fill = (min(value, total) / total.toDouble() * width).toInt()
         val ansi = Ansi.ansi()
             .eraseLine()

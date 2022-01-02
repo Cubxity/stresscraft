@@ -1,85 +1,86 @@
 package dev.cubxity.tools.stresscraft
 
-import kotlinx.cli.ArgParser
-import kotlinx.cli.ArgType
-import kotlinx.cli.default
-import kotlinx.cli.optional
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
+import dev.cubxity.tools.stresscraft.data.StressCraftSession
+import dev.cubxity.tools.stresscraft.module.Module
+import kotlinx.coroutines.*
+import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.math.ceil
+import kotlin.system.measureNanoTime
 
 class StressCraft(
     val host: String,
     val port: Int,
     val options: StressCraftOptions
 ) {
-    private val executor = Executors.newScheduledThreadPool(2)
-    private val terminal = Terminal()
+    private val coroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private var id = 0
 
-    val sessions = AtomicInteger()
+    private val _sessions = LinkedList<StressCraftSession>()
+    private val modules = listOf<Module>()
+
+    val sessionCount = AtomicInteger()
     val activeSessions = AtomicInteger()
     val chunksLoaded = AtomicInteger()
+
+    val sessions: List<StressCraftSession>
+        get() = _sessions
 
     fun start() {
         Runtime.getRuntime().addShutdownHook(Thread {
             executeShutdownHook()
         })
 
-        executor.scheduleAtFixedRate({
-            val sessions = sessions.get()
-            val activeSessions = activeSessions.get()
-            if (sessions < options.count && sessions - activeSessions < options.buffer) {
-                createSession()
+        coroutineScope.launch {
+            while (true) {
+                try {
+                    val sessions = sessionCount.get()
+                    val activeSessions = activeSessions.get()
+                    if (sessions < options.count && sessions - activeSessions < options.buffer) {
+                        createSession()
+                    }
+                } catch (error: Throwable) {
+                    // ?
+                }
+                delay(options.delay.toLong())
             }
-        }, 0, options.delay.toLong(), TimeUnit.MILLISECONDS)
+        }
 
-        // Render at 10 FPS
-        // Some terminals may be too slow to handle high frequency updates
-        executor.scheduleAtFixedRate({
-            renderProgress()
-        }, 0, 100, TimeUnit.MILLISECONDS)
+        // Ticking
+        coroutineScope.launch {
+            while (true) {
+                val time = measureNanoTime {
+                    try {
+                        for (session in _sessions) {
+                            for (module in modules) {
+                                module.tick(session)
+                            }
+                        }
+                    } catch (error: Throwable) {
+                        // ?
+                    }
+                }
+                delay(50 - ceil(time / 1E6).toLong())
+            }
+        }
+    }
+
+    fun removeSession(session: StressCraftSession) {
+        synchronized(_sessions) {
+            _sessions.remove(session)
+        }
     }
 
     private fun createSession() {
         val name = options.prefix + "${id++}".padStart(4, '0')
-        Session(this).connect(name)
-    }
-
-    private fun renderProgress() {
-        terminal.renderHeader(host, port)
-        terminal.renderInfo("\uD83D\uDCE6 Chunks", chunksLoaded.get())
-        terminal.newLine()
-        terminal.renderBar(sessions.get(), options.count, "Connections")
-        terminal.renderBar(activeSessions.get(), options.count, "Players")
-        terminal.renderBar(100, 100, "Michael Appreciation")
-        terminal.reset()
+        val session = StressCraftSession(this)
+        synchronized(_sessions) {
+            _sessions.add(session)
+        }
+        session.connect(name)
     }
 
     private fun executeShutdownHook() {
-        executor.shutdownNow()
-        terminal.close()
+        coroutineScope.coroutineContext.job.cancel()
     }
-}
-
-fun main(args: Array<String>) {
-    val parser = ArgParser("stresscraft")
-    val host by parser.argument(ArgType.String, description = "the IP address or the hostname of the server")
-    val port by parser.argument(ArgType.Int, description = "the port of the server")
-        .optional().default(25565)
-    val count by parser.option(ArgType.Int, "count", "c", description = "the amount of bots")
-        .default(500)
-    val delay by parser.option(ArgType.Int, "delay", "d", description = "delay between connections, in ms")
-        .default(20)
-    val buffer by parser.option(ArgType.Int, "buffer", "b", description = "buffer between connections and players")
-        .default(20)
-    val prefix by parser.option(ArgType.String, "prefix", "p", description = "player name prefix")
-        .default("Player")
-    val simulate by parser.option(ArgType.Boolean, "simulate", "s", description = "use player simulation (not implemented)")
-        .default(true)
-
-    parser.parse(args)
-
-    val options = StressCraftOptions(count, delay, buffer, prefix, simulate)
-    StressCraft(host, port, options).start()
 }
