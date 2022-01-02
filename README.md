@@ -16,8 +16,8 @@ other purposes than testing your own servers.
 
 - Set `online-mode` to false on your server(s)
 - Set `network-compression-threshold` to `-1`
-- Set `connection-throttle` (spigot) to `-1`
-- Increase `max-joins-per-tick` (paper) to your liking
+- Set `connection-throttle` (bukkit.yml) to `-1`
+- Increase `max-joins-per-tick` (paper.yml) to your liking
 - Execute the jar with proper arguments
 
 ## Who needs this?
