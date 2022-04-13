@@ -15,7 +15,7 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.1")
     implementation("org.jetbrains.kotlinx:kotlinx-cli-jvm:0.3.4")
-    implementation("com.github.Steveice10:MCProtocolLib:1.18.2-1")
+    implementation("com.github.GeyserMC:MCProtocolLib:1.18.2-1")
     implementation("org.fusesource.jansi:jansi:2.4.0")
 }
 
