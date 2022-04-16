@@ -8,14 +8,15 @@ version = "0.0.1"
 
 repositories {
     mavenCentral()
-    maven("https://jitpack.io")
+    maven("https://jitpack.io/")
+    maven("https://repo.opencollab.dev/maven-releases/")
 }
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.1")
     implementation("org.jetbrains.kotlinx:kotlinx-cli-jvm:0.3.4")
-    implementation("com.github.Steveice10:MCProtocolLib:1.18.2-1")
+    implementation("com.github.steveice10:mcprotocollib:1.18.2-1")
     implementation("org.fusesource.jansi:jansi:2.4.0")
 }
 
