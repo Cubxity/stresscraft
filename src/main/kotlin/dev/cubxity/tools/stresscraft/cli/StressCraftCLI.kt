@@ -35,8 +35,8 @@ object StressCraftCLI {
             ArgType.Boolean,
             "accept_resource_packs",
             "a",
-            description = "automatically accept resource packs"
-        ).default(false)
+            description = "accept/deny resource packs"
+        )
 
         parser.parse(args)
 
