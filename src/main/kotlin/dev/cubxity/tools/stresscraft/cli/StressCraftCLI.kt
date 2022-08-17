@@ -1,5 +1,6 @@
 package dev.cubxity.tools.stresscraft.cli
 
+import com.github.steveice10.mc.protocol.data.game.ResourcePackStatus
 import dev.cubxity.tools.stresscraft.StressCraft
 import dev.cubxity.tools.stresscraft.StressCraftOptions
 import dev.cubxity.tools.stresscraft.util.Terminal
@@ -31,6 +32,12 @@ object StressCraftCLI {
             "s",
             description = "use player simulation (not implemented)"
         ).default(true)
+        val acceptResourcePacks by parser.option(
+            ArgType.Choice<ResourcePackStatus>(),
+            "resource_pack_response",
+            "rp",
+            description = "resource pack response"
+        )
 
         parser.parse(args)
 
@@ -39,7 +46,7 @@ object StressCraftCLI {
         })
         terminal.init()
 
-        val options = StressCraftOptions(count, delay, buffer, prefix, simulate)
+        val options = StressCraftOptions(count, delay, buffer, prefix, simulate, acceptResourcePacks)
         val app = StressCraft(host, port, options)
         app.start()
 
