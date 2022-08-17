@@ -5,5 +5,6 @@ data class StressCraftOptions(
     val delay: Int,
     val buffer: Int,
     val prefix: String,
-    val simulate: Boolean
+    val simulate: Boolean,
+    val acceptResourcePacks: Boolean
 )

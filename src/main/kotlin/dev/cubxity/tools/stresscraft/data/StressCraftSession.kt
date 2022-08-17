@@ -2,7 +2,9 @@ package dev.cubxity.tools.stresscraft.data
 
 import com.github.steveice10.mc.protocol.MinecraftProtocol
 import com.github.steveice10.mc.protocol.data.game.ClientCommand
+import com.github.steveice10.mc.protocol.data.game.ResourcePackStatus
 import com.github.steveice10.mc.protocol.packet.ingame.clientbound.ClientboundLoginPacket
+import com.github.steveice10.mc.protocol.packet.ingame.clientbound.ClientboundResourcePackPacket
 import com.github.steveice10.mc.protocol.packet.ingame.clientbound.ClientboundRespawnPacket
 import com.github.steveice10.mc.protocol.packet.ingame.clientbound.entity.player.ClientboundPlayerPositionPacket
 import com.github.steveice10.mc.protocol.packet.ingame.clientbound.entity.player.ClientboundSetHealthPacket
@@ -10,6 +12,7 @@ import com.github.steveice10.mc.protocol.packet.ingame.clientbound.level.Clientb
 import com.github.steveice10.mc.protocol.packet.ingame.clientbound.level.ClientboundLevelChunkWithLightPacket
 import com.github.steveice10.mc.protocol.packet.ingame.clientbound.level.ClientboundSetTimePacket
 import com.github.steveice10.mc.protocol.packet.ingame.serverbound.ServerboundClientCommandPacket
+import com.github.steveice10.mc.protocol.packet.ingame.serverbound.ServerboundResourcePackPacket
 import com.github.steveice10.mc.protocol.packet.ingame.serverbound.level.ServerboundAcceptTeleportationPacket
 import com.github.steveice10.packetlib.Session
 import com.github.steveice10.packetlib.event.session.DisconnectedEvent
@@ -85,6 +88,13 @@ class StressCraftSession(private val app: StressCraft) : SessionAdapter() {
             }
             is ClientboundSetTimePacket -> {
                 timer.onWorldTimeUpdate(packet.time)
+            }
+            is ClientboundResourcePackPacket -> {
+                if (app.options.acceptResourcePacks) {
+                    session.send(ServerboundResourcePackPacket(ResourcePackStatus.ACCEPTED))
+                } else {
+                    session.send(ServerboundResourcePackPacket(ResourcePackStatus.DECLINED))
+                }
             }
         }
     }

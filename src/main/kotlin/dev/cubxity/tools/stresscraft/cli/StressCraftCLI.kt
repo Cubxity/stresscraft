@@ -31,6 +31,12 @@ object StressCraftCLI {
             "s",
             description = "use player simulation (not implemented)"
         ).default(true)
+        val acceptResourcePacks by parser.option(
+            ArgType.Boolean,
+            "accept_resource_packs",
+            "a",
+            description = "automatically accept resource packs"
+        ).default(false)
 
         parser.parse(args)
 
@@ -39,7 +45,7 @@ object StressCraftCLI {
         })
         terminal.init()
 
-        val options = StressCraftOptions(count, delay, buffer, prefix, simulate)
+        val options = StressCraftOptions(count, delay, buffer, prefix, simulate, acceptResourcePacks)
         val app = StressCraft(host, port, options)
         app.start()
 
