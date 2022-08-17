@@ -1,5 +1,6 @@
 package dev.cubxity.tools.stresscraft.cli
 
+import com.github.steveice10.mc.protocol.data.game.ResourcePackStatus
 import dev.cubxity.tools.stresscraft.StressCraft
 import dev.cubxity.tools.stresscraft.StressCraftOptions
 import dev.cubxity.tools.stresscraft.util.Terminal
@@ -32,10 +33,10 @@ object StressCraftCLI {
             description = "use player simulation (not implemented)"
         ).default(true)
         val acceptResourcePacks by parser.option(
-            ArgType.Boolean,
-            "accept_resource_packs",
-            "a",
-            description = "accept/deny resource packs"
+            ArgType.Choice<ResourcePackStatus>(),
+            "resource_pack_response",
+            "rp",
+            description = "resource pack response"
         )
 
         parser.parse(args)

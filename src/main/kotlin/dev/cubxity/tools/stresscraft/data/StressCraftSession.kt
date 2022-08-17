@@ -90,11 +90,9 @@ class StressCraftSession(private val app: StressCraft) : SessionAdapter() {
                 timer.onWorldTimeUpdate(packet.time)
             }
             is ClientboundResourcePackPacket -> {
-                when (app.options.acceptResourcePacks) {
-                    true -> session.send(ServerboundResourcePackPacket(ResourcePackStatus.ACCEPTED))
-                    false -> session.send(ServerboundResourcePackPacket(ResourcePackStatus.DECLINED))
-                    else -> { }
-                }
+                app.options.acceptResourcePacks
+                    ?.let(::ServerboundResourcePackPacket)
+                    ?.let(session::send)
             }
         }
     }
