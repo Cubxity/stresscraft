@@ -17,7 +17,7 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4")
     implementation("org.jetbrains.kotlinx:kotlinx-cli-jvm:0.3.5")
-    implementation("com.github.steveice10:mcprotocollib:1.19.4-SNAPSHcOT")
+    implementation("com.github.steveice10:mcprotocollib:1.19.4-SNAPSHOT")
     implementation("org.fusesource.jansi:jansi:2.4.0")
 }
 
