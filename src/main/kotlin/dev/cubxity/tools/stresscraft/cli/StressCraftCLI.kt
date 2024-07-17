@@ -1,6 +1,5 @@
 package dev.cubxity.tools.stresscraft.cli
 
-import com.github.steveice10.mc.protocol.data.game.ResourcePackStatus
 import dev.cubxity.tools.stresscraft.StressCraft
 import dev.cubxity.tools.stresscraft.StressCraftOptions
 import dev.cubxity.tools.stresscraft.util.Terminal
@@ -9,6 +8,7 @@ import kotlinx.cli.ArgType
 import kotlinx.cli.default
 import kotlinx.cli.optional
 import kotlinx.coroutines.delay
+import org.geysermc.mcprotocollib.protocol.data.game.ResourcePackStatus
 
 object StressCraftCLI {
     private val terminal = Terminal()
