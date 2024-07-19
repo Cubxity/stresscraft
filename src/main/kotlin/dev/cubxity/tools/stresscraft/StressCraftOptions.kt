@@ -1,6 +1,6 @@
 package dev.cubxity.tools.stresscraft
 
-import com.github.steveice10.mc.protocol.data.game.ResourcePackStatus
+import org.geysermc.mcprotocollib.protocol.data.game.ResourcePackStatus
 
 data class StressCraftOptions(
     val count: Int,

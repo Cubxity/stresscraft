@@ -1,24 +1,24 @@
 package dev.cubxity.tools.stresscraft.data
 
-import com.github.steveice10.mc.protocol.MinecraftProtocol
-import com.github.steveice10.mc.protocol.data.game.ClientCommand
-import com.github.steveice10.mc.protocol.data.game.ResourcePackStatus
-import com.github.steveice10.mc.protocol.packet.ingame.clientbound.ClientboundLoginPacket
-import com.github.steveice10.mc.protocol.packet.common.clientbound.ClientboundResourcePackPushPacket
-import com.github.steveice10.mc.protocol.packet.ingame.clientbound.ClientboundRespawnPacket
-import com.github.steveice10.mc.protocol.packet.ingame.clientbound.entity.player.ClientboundPlayerPositionPacket
-import com.github.steveice10.mc.protocol.packet.ingame.clientbound.entity.player.ClientboundSetHealthPacket
-import com.github.steveice10.mc.protocol.packet.ingame.clientbound.level.ClientboundForgetLevelChunkPacket
-import com.github.steveice10.mc.protocol.packet.ingame.clientbound.level.ClientboundLevelChunkWithLightPacket
-import com.github.steveice10.mc.protocol.packet.ingame.clientbound.level.ClientboundSetTimePacket
-import com.github.steveice10.mc.protocol.packet.ingame.serverbound.ServerboundClientCommandPacket
-import com.github.steveice10.mc.protocol.packet.common.serverbound.ServerboundResourcePackPacket
-import com.github.steveice10.mc.protocol.packet.ingame.serverbound.level.ServerboundAcceptTeleportationPacket
-import com.github.steveice10.packetlib.Session
-import com.github.steveice10.packetlib.event.session.DisconnectedEvent
-import com.github.steveice10.packetlib.event.session.SessionAdapter
-import com.github.steveice10.packetlib.packet.Packet
-import com.github.steveice10.packetlib.tcp.TcpClientSession
+import org.geysermc.mcprotocollib.protocol.MinecraftProtocol
+import org.geysermc.mcprotocollib.protocol.data.game.ClientCommand
+import org.geysermc.mcprotocollib.protocol.data.game.ResourcePackStatus
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.ClientboundLoginPacket
+import org.geysermc.mcprotocollib.protocol.packet.common.clientbound.ClientboundResourcePackPushPacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.ClientboundRespawnPacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.player.ClientboundPlayerPositionPacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.player.ClientboundSetHealthPacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.level.ClientboundForgetLevelChunkPacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.level.ClientboundLevelChunkWithLightPacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.level.ClientboundSetTimePacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.ServerboundClientCommandPacket
+import org.geysermc.mcprotocollib.protocol.packet.common.serverbound.ServerboundResourcePackPacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.level.ServerboundAcceptTeleportationPacket
+import org.geysermc.mcprotocollib.network.Session
+import org.geysermc.mcprotocollib.network.event.session.DisconnectedEvent
+import org.geysermc.mcprotocollib.network.event.session.SessionAdapter
+import org.geysermc.mcprotocollib.network.packet.Packet
+import org.geysermc.mcprotocollib.network.tcp.TcpClientSession
 import dev.cubxity.tools.stresscraft.StressCraft
 import dev.cubxity.tools.stresscraft.util.ServerTimer
 
@@ -102,7 +102,7 @@ class StressCraftSession(private val app: StressCraft) : SessionAdapter() {
     }
 
     private fun computeKey(x: Int, z: Int): Long =
-        x.toLong().shl(32) or z.toLong()
+        x.toLong().shl(32) or (z.toLong().and(0xFFFFFFFFL))
 
     private fun handleDisconnect() {
         app.removeSession(this)
