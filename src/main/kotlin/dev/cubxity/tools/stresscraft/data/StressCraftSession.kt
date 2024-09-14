@@ -94,6 +94,9 @@ class StressCraftSession(private val app: StressCraft) : SessionAdapter() {
                     ?.let { ServerboundResourcePackPacket(packet.id, it) }
                     ?.let(session::send)
             }
+            is ClientboundPingPacket -> {
+                session.send(ServerboundPongPacket(packet.id))
+            }
         }
     }
 
